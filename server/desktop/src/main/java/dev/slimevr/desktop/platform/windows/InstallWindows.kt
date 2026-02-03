@@ -1,6 +1,7 @@
 package dev.slimevr.desktop.platform.windows
 
 import java.io.IOException
+import java.nio.file.Paths
 
 class InstallWindows {
 
@@ -23,8 +24,21 @@ class InstallWindows {
 	}
 
 	fun CheckIfUSBDriversInstalled() {
-		val installedDriversList = executeShellCommand("Get-WindowsDriver")
-		println(installedDriversList)
+		val installedDriversList = executeShellCommand("powershell.exe  pnputil /enum-drivers")
+		//println(installedDriversList)
+		val ch341ser = installedDriversList.contains("ch341ser.inf")
+		val ch343ser = installedDriversList.contains("ch343ser.inf")
+		val silabser = installedDriversList.contains("silabser.inf")
+		val path = Paths.get("").toAbsolutePath().toString()
+
+		if (!(ch341ser && ch343ser && silabser)) {
+			println("drivers already installed!")
+		} else {
+			println("Cannot find one of the drivers, installing drivers")
+			val driverinstallOutput = executeShellCommand(path + "\\installusbdrivers.bat")
+			println(driverinstallOutput)
+
+		}
 	}
 
 	fun InstallUSBDrivers() {
